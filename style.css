@@ -3,7 +3,7 @@
   margin: 0;
   color: #ffffff;
   line-height: 2;
-  background-color: #3e423f;
+  /*background-color: #3e423f;*/
   padding: 0;
 }
 
@@ -20,8 +20,12 @@ li {
   margin-left: 15px;
 }
 
-.nav {
+.nav ul {
   background-color: black;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 .nav li {
@@ -30,17 +34,13 @@ li {
 
 .nav li a {
   font-size: 19px;
-  word-wrap: normal;
   text-decoration: none;
-  padding-bottom:15px;
-  color: white;
   border-bottom: 2px solid white; 
-  margin-left: 37px;
   transition: padding-bottom 1s 0.1s, clor 0.25s 0.05s;
 }
 
 .nav li a:hover {
-  color: #171a18;
+  color: green;
   padding-bottom: 0px;
 }
 
