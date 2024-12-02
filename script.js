@@ -24,16 +24,12 @@ const getRefreshToken = async () => {
     }
 }
 
-
-
-
 const generateRandomString = (length) => {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const values = crypto.getRandomValues(new Uint8Array(length));
     return values.reduce((acc, x) => acc + possible[x % possible.length], "");
 }
 
-const codeVerifier = generateRandomString(64);
 const sha256 = async (plain) => {
     const encoder = new TextEncoder()
     const data = encoder.encode(plain)
@@ -45,9 +41,6 @@ const base64encode = (input) => {
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
 }
-const hashed = await sha256(codeVerifier)
-const codeChallenge = base64encode(hashed);
-user_authorization();
 
 function user_authorization() {
     const clientId = '61e27c75288442e492a4585b195b1750';
@@ -73,28 +66,36 @@ function user_authorization() {
 
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const authCode = urlParams.get('code');
+async function token() {
+    const codeVerifier = generateRandomString(64);
+    const hashed = await sha256(codeVerifier)
+    const codeChallenge = base64encode(hashed);
+    user_authorization();
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+    // codeVerifier MUST be the same as the one used to make the code challenge for the auth request
+    const codeVerifier2 = localStorage.getItem('code_verifier');
 
-// codeVerifier MUST be the same as the one used to make the code challenge for the auth request
-const codeVerifier2 = localStorage.getItem('code_verifier');
+    const payload = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: '61e27c75288442e492a4585b195b1750',
+            redirect_uri: 'https://github.com/rryyii/rryyii.github.io',
+            code_verifier: codeVerifier2,
+            code: authCode, // From the URL
+        }),
+    }
 
-const payload = {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: '61e27c75288442e492a4585b195b1750',
-        redirect_uri: 'https://github.com/rryyii/rryyii.github.io',
-        code_verifier: codeVerifier2,
-        code: authCode, // From the URL
-    }),
+    const response = await fetch('https://accounts.spotify.com/api/token', payload);
+    const data = await response.json();
+
+    const accessToken = data.access_token;
+    alert(accessToken);
 }
 
-const response = await fetch('https://accounts.spotify.com/api/token', payload);
-const data = await response.json();
+token();
 
-const accessToken = data.access_token;
-alert(accessToken);
